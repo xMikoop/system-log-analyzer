@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SystemX | Intelligence Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --mt-blue: #0056b3; --mt-green: #4db848; --bg: #0b0d0f; --card: #161a1e; --text: #f0f0f0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1000px; }
+        header { text-align: center; margin-bottom: 50px; }
+        header img { max-width: 300px; }
+        .drop-zone { border: 1px solid #2d333b; background: var(--card); border-radius: 20px; padding: 60px; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .drop-zone:hover { border-color: var(--mt-green); }
+        .ai-box { background: #1c2128; border-top: 4px solid var(--mt-green); padding: 30px; border-radius: 12px; margin-top: 40px; white-space: pre-wrap; line-height: 1.6; font-family: 'Inter', sans-serif; color: #fff; }
+        .issue-card { background: #161a1e; padding: 20px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #2d333b; }
+        .badge { background: #cf3b2b; color: white; padding: 3px 10px; border-radius: 6px; font-size: 11px; float: right; }
+        .v-badge { background: var(--mt-blue); color: white; padding: 8px 18px; border-radius: 6px; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .btn-pdf { background: var(--mt-green); color: black; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 30px; display: none; }
+        #progressWrapper { display: none; margin-top: 20px; text-align: center; }
+        .bar { width: 100%; background: #222; height: 6px; border-radius: 10px; overflow: hidden; }
+        .fill { width: 0%; height: 100%; background: var(--mt-green); transition: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><img src="/logo"><h1>SystemX AI Intelligence</h1></header>
+        <div class="drop-zone" id="dropZone">📦 Drop Diagnostics ZIP here</div>
+        <div id="progressWrapper"><div class="bar"><div class="fill" id="fill"></div></div><p>AI analyzing... Please wait.</p></div>
+        <div id="results" style="display:none; margin-top:40px;">
+            <button class="btn-pdf" id="pdfBtn" onclick="window.location.href='/download-pdf'">⬇️ Download Diagnostic Report</button>
+            <div id="versionArea"></div>
+            <div class="ai-box" id="aiContainer"></div>
+            <h3 style="margin-top: 40px; border-left: 3px solid var(--mt-blue); padding-left: 15px;">Technical Details</h3>
+            <div id="issueArea"></div>
+        </div>
+    </div>
+    <script>
+        const dz = document.getElementById('dropZone');
+        const fill = document.getElementById('fill');
+        dz.onclick = () => { const i = document.createElement('input'); i.type='file'; i.onchange=e=>up(e.target.files[0]); i.click(); };
+        dz.ondragover = e => { e.preventDefault(); dz.style.borderColor= "#4db848"; };
+        dz.ondrop = e => { e.preventDefault(); up(e.dataTransfer.files[0]); };
+
+        async function up(file) {
+            if(!file) return;
+            document.getElementById('progressWrapper').style.display='block';
+            fill.style.width='50%';
+            const fd = new FormData(); fd.append('file', file);
+            const res = await fetch('/analyze-zip', {method:'POST', body:fd});
+            const data = await res.json();
+            fill.style.width='100%';
+            if(data.status==='success') {
+                document.getElementById('versionArea').innerHTML = `<span class="v-badge">DETECTED SYSTEM: LABX ${data.version}</span>`;
+                document.getElementById('aiContainer').innerHTML = data.analysis;
+                document.getElementById('issueArea').innerHTML = data.top_issues.map(i => `<div class="issue-card"><span class="badge">${i.occurrences} HITS</span><b style="color:var(--mt-blue)">${i.source}</b><p style="font-size:13px">${i.message}</p></div>`).join('');
+                document.getElementById('results').style.display='block';
+                document.getElementById('pdfBtn').style.display='block';
+            }
+            document.getElementById('progressWrapper').style.display='none';
+        }
+    </script>
+</body>
+</html>
