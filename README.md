@@ -1,3 +1,6 @@
+> 💡 **Portfolio Note:** *This tool was originally developed internally in Q1 2026. It has been cleaned of sensitive data, API keys, and internal business logic, and published here as a showcase of my technical stack.*
+
+
 # SystemX AI Log Analyzer
 
 **An automated diagnostic tool that parses enterprise software logs, extracts critical errors, and uses AI (Google Gemini) to determine root causes and provide actionable fix steps.**
