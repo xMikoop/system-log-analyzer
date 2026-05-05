@@ -20,8 +20,10 @@ An automated FastAPI backend that:
 6. Generates a downloadable PDF diagnostic report.
 
 ### 🛠️ Tech Stack & Architecture
-- **Backend:** FastAPI (Python), `zipfile`, `FPDF`
-- **AI Integration:** Google GenAI API (`gemini-3.1-flash`)
+- **Backend:** FastAPI (Python), `uvicorn`, `python-multipart` (file uploads)
+- **Log Parsers:** `python-evtx` (Windows Event Log), `zipfile`, custom Regex parsers for YALV/XML/Text/SQL
+- **AI Integration:** `google-genai` SDK (Gemini models via Vertex AI / Google Cloud)
+- **PDF Generation:** `fpdf2` library
 - **Performance Optimization:** MD5 hashing for query caching (drastically reduces token usage and API costs).
 - **Frontend:** Vanilla HTML/JS with asynchronous polling for the diagnostic report.
 
@@ -35,7 +37,7 @@ An automated FastAPI backend that:
 ### 🚀 How to Run
 
 1. Clone the repository.
-2. Install dependencies: `pip install -r requirements.txt`
+2. Install dependencies: `pip install fastapi uvicorn google-genai fpdf2 python-evtx python-multipart`
 3. Add your Gemini API Key as an environment variable or inside `app/ai_service.py`.
 4. Run the server: `uvicorn app.main:app --reload`
 5. Open `http://localhost:8000` and upload your log archive.
